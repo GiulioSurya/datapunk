@@ -1,6 +1,3 @@
-setwd("C:/Users/c_ans/Desktop/bologna lezioni/comunication of statistics")
-
-
 
 library(tidyverse)
 library(googlesheets4)
