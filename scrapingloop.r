@@ -2,16 +2,21 @@ library(tidyverse)
 library(rvest)
 library(googlesheets4)
 
+#create a user agent list to avoid error 403 when a request is made to the server
+ualist<-read_sheet("https://docs.google.com/spreadsheets/d/1kS6VkrUu7txADr-4xs1M2SREv1YD9HoWEbUOr_8RdG0/edit#gid=0")
 
-ualist<-read_sheet("https://docs.google.com/spreadsheets/d/1FduIFZUJcPFzKWm2qxdQw4qZo1nJwnLf9n5ddtR1w5A/edit#gid=0")
-page<- read_html("https://www.whosampled.com/Daft-Punk/sampled/?role=1", user_agent = sample(ualist))
+#create a list of links with all the possible daft punk songs
+tracks_links<-list()
+for (i in 1:8) {
+   page<- read_html(paste0("https://www.whosampled.com/Daft-Punk/sampled/?role=",i ),user_agent = sample(ualist))
+   pages<- page %>% 
+     html_nodes(".trackCover") %>%
+     html_attr("href") %>%
+     paste0("https://www.whosampled.com", ., "sampled/") 
+ tracks_links <- c(tracks_links, pages)
+}
 
-tracks_links <- page %>% 
-  html_nodes(".trackCover") %>%
-  html_attr("href") %>%
-  paste0("https://www.whosampled.com", ., "sampled/") 
-
-
+#create a tibble to store the data
 result <- tibble(
   title = character(),
   artist = character(),
@@ -19,9 +24,10 @@ result <- tibble(
   genre = character()
 )
 
+#loop for each url tracks_links
 for (i in 1:length(tracks_links)) {
-  link <- tryCatch({
-    read_html(tracks_links[i], user_agent = sample(ualist))
+  link <- tryCatch({                                        #try catch is used to avoid error 403
+    read_html(tracks_links[i], user_agent = sample(ualist))     
   }, error = function(e) {
     cat("Error occurred, retrying...\n")
     Sys.sleep(5)
@@ -33,8 +39,8 @@ for (i in 1:length(tracks_links)) {
       html_elements(".page a") %>% 
       html_text2() %>% 
       last() 
-      if (is.null(links)) {
-      links <- 1  # Imposta links a 1 se è NULL
+      if (is.null(links)) {                            #some urls in tracks_links don't have more than one page
+      links <- 1                                       #this assign 1 to links if it is null
     }
     extracted<- paste0(tracks_links[i], "?cp=", 1:links) %>%  
       map(function(url) {
@@ -64,4 +70,3 @@ for (i in 1:length(tracks_links)) {
       result <- bind_rows(result, extracted)
   }
 }
-
