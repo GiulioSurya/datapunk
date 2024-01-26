@@ -13,10 +13,12 @@ tracks_links <- page %>%
   html_attr("href") %>%
   paste0("https://www.whosampled.com", ., "sampled/") 
 
+tracks_links <- tracks_links[-6] #for the moment i delet it because it got me an NA error in the loop
+
 #loop for each url
 for (i in 1:length(tracks_links)) {
   link <- tryCatch({                                              #tryCatch is used to handle error 403
-    read_html(tracks_links[6], user_agent = sample(ualist))
+    read_html(tracks_links[i], user_agent = sample(ualist))
   }, error = function(e) {
     cat("Error occurred, retrying...\n")
     Sys.sleep(5)
