@@ -2,22 +2,25 @@ library(tidyverse)
 library(rvest)
 library(googlesheets4)
 
-#user agent list
-ualist<-read_sheet("https://docs.google.com/spreadsheets/d/1FduIFZUJcPFzKWm2qxdQw4qZo1nJwnLf9n5ddtR1w5A/edit#gid=0")
-#first url (i need it to create the list of all URls)
-page <- read_html("https://www.whosampled.com/Daft-Punk/sampled/?role=1", user_agent = sample(ualist))
 
-#create the list of urls
+ualist<-read_sheet("https://docs.google.com/spreadsheets/d/1FduIFZUJcPFzKWm2qxdQw4qZo1nJwnLf9n5ddtR1w5A/edit#gid=0")
+page<- read_html("https://www.whosampled.com/Daft-Punk/sampled/?role=1", user_agent = sample(ualist))
+
 tracks_links <- page %>% 
   html_nodes(".trackCover") %>%
   html_attr("href") %>%
   paste0("https://www.whosampled.com", ., "sampled/") 
 
-tracks_links <- tracks_links[-6] #for the moment i delet it because it got me an NA error in the loop
 
-#loop for each url
+result <- tibble(
+  title = character(),
+  artist = character(),
+  year = character(),
+  genre = character()
+)
+
 for (i in 1:length(tracks_links)) {
-  link <- tryCatch({                                              #tryCatch is used to handle error 403
+  link <- tryCatch({
     read_html(tracks_links[i], user_agent = sample(ualist))
   }, error = function(e) {
     cat("Error occurred, retrying...\n")
@@ -30,8 +33,10 @@ for (i in 1:length(tracks_links)) {
       html_elements(".page a") %>% 
       html_text2() %>% 
       last() 
-    
-    result <- paste0(tracks_links[i], "?cp=", 1:links) %>%  
+      if (is.null(links)) {
+      links <- 1  # Imposta links a 1 se è NULL
+    }
+    extracted<- paste0(tracks_links[i], "?cp=", 1:links) %>%  
       map(function(url) {
         tryCatch({
           read_html(url, user_agent = sample(ualist))
@@ -54,11 +59,9 @@ for (i in 1:length(tracks_links)) {
               genre = html_element(.x, ".tdata__badge") %>% 
                 html_text2() 
             ))
-        } else {
-          tibble()  # Restituisce un tibble vuoto se .x è NULL
-        }
+        } 
       })
+      result <- bind_rows(result, extracted)
   }
 }
-
 
