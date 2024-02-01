@@ -3,4 +3,10 @@
 
  
 The idea originated within the context of a data visualization project at the University of Bologna. The aim is to leverage both libraries like ggplot in R and data visualization tools to create an enjoyable narrative on the musical evolution of the duo. The inspiration comes from samplingdonuts.com, while the data has been collected from whosampled.com.
- 
+
+
+https://github.com/GiulioSurya/datapunk/assets/153427674/d07fe903-66a1-4af3-9d2d-c97097c36cfa
+
+
+The objective of the project is to craft a static webpage that employs advanced data visualization and scrolling techniques to vividly portray the journey and profound influences that Daft Punk have both exerted on and received from modern music
+
