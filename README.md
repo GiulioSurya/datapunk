@@ -8,5 +8,4 @@ The idea originated within the context of a data visualization project at the Un
 https://github.com/GiulioSurya/datapunk/assets/153427674/d07fe903-66a1-4af3-9d2d-c97097c36cfa
 
 
-The objective of the project is to craft a static webpage that employs advanced data visualization and scrolling techniques to vividly portray the journey and profound influences that Daft Punk have both exerted on and received from modern music
 
