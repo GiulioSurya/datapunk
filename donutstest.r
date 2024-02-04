@@ -6,11 +6,20 @@ library(ggtext)
 library(geomtextpath)
 
 # Define color palette (NA values are defined separately)
-colorvalues = c("Other" = "#E78B0E", 
-                "Soul/Funk/Disco" = "#DD3B87", 
-                "Reggae/Dub" = "#0E98D7",
-                "Rock/Pop" = "#0E2D81",
-                "Elettronic/Dance" = "#6A3B93")
+
+
+colorvalues <- c(
+  "Other" = "#FF8D06",
+  "Soul/Funk/Disco" = "#FF009D",
+  "Soul/Disco" = "#891978",
+  "Hip-Hop/Rap/R&B" = "#e41e0391",
+  "Jazz/Blues/Funk" = "#0cecbf",
+  "Jazz/Blues" = "#258df5",
+  "Reggae/Dub" = "#f90c0c",
+  "Rock/Pop" = "#4419df",
+  "Electronic/Dance"= "#913EED"
+)
+
 
 navalue = "#AAAAAA"
 
@@ -179,4 +188,44 @@ donutrecord<-ggplot(df1) +
         ) 
 
 print(donutrecord)
+
+ggsave(file = "donutrecord.svg", plot = donutrecord)
+
+
+#Bar Graph
+
+sampled<-read_sheet("https://docs.google.com/spreadsheets/d/1D3kZpDH9MnELH3Jt1JY95iL8ALxsXzM2x77FYA9xm4U/edit#gid=0")
+sampled<-sampled[,-1]
+
+#remove space in genre column for colorpalette matching
+sampled<-sampled %>%
+  mutate_at(vars(5), ~gsub(" ", "", .))
+
+#group by genre and part_sampled and count the number of songs sampled
+sampled_df<-sampled%>%group_by(genre, part_sampled)%>%summarise(n=n())%>%arrange(desc(n))
+
+
+#plot the bar graph relative
+sampled_bar<-ggplot(sampled_df, aes(x=part_sampled, y=n, fill=genre))+
+  geom_col(position="fill", width = 0.4)+
+  scale_fill_manual(values = colorvalues)+
+  theme_minimal()+
+  theme(legend.position = "bottom")+
+  labs(title="Genres by Type of Sampled Part", x="Sampled part of the Daft Punk tracks", y="Percentage by Genre Type!")
+
+print(sampled_bar)
+
+ggsave(file = "sampled_bar.svg", plot = sampled_bar)
+
+#graph bare in absolute values
+sampled_bar_absolute<-ggplot(sampled_df, aes(x=part_sampled, fill=genre))+
+  geom_bar(aes(y=n), stat="identity", position="dodge")+
+  scale_fill_manual(values = colorvalues)+
+  theme_minimal()+
+  theme(legend.position = "bottom")+
+  labs(title="Genres by Type of Sampled Part", x="Sampled part of the Daft Punk tracks", y="Count of Samples")
+
+print(sampled_bar_absolute)
+
+ggsave(file = "sampled_bar_absolute.svg", plot = sampled_bar_absolute)
 
