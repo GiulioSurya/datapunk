@@ -6,6 +6,12 @@ The idea originated within the context of a data visualization project at the Un
 
 
 
+
+https://github.com/GiulioSurya/datapunk/assets/153427674/64cf2fb7-1acf-44b5-a2b6-15736bafe106
+
+
+
+
 ![donutrecord](https://github.com/GiulioSurya/datapunk/assets/153427674/8f751c66-a35c-496d-bb45-2b1ffd456e2c)
 
 
