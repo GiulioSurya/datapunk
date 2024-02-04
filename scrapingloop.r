@@ -3,23 +3,21 @@ library(rvest)
 library(googlesheets4)
 library(httr)
 
-#create an user agent list
+
 ualist<-read_sheet("https://docs.google.com/spreadsheets/d/1FduIFZUJcPFzKWm2qxdQw4qZo1nJwnLf9n5ddtR1w5A/edit#gid=0")
 
-#select an user agent that works
 ua_success <- character()
+
 for(i in 200:499) {
-  response <- httr::GET("https://www.whosampled.com/Daft-Punk/sampled/?role=1", 
+  response <- GET("https://www.whosampled.com/Daft-Punk/sampled/?role=1", 
                         add_headers(`User-Agent` = as.character(ualist[i,])))
   if(response$status_code == 200) {
     ua_success <- c(ua_success, as.character(ualist[i,]))
     break
   }
-  Sys.sleep(10)
+sys.sleep(5)
 }
 
-
-#extract the links of the pages
 tracks_links<-c()
 for (i in 1:8) {
   pages<-GET(paste0("https://www.whosampled.com/Daft-Punk/sampled/?role=1&sp=",i), user_agent(ua_success)) %>%
@@ -28,21 +26,20 @@ for (i in 1:8) {
      html_attr("href") %>%
      paste0("https://www.whosampled.com", ., "sampled/") 
  tracks_links <- c(tracks_links, pages)
- Sys.sleep(60)
+ Sys.sleep(5)
 }
 
 
-#inizialized the result
 result <- tibble(
   title = character(),
   artist = character(),
   year = character(),
-  genre = character()
+  part_sampled = character()
 )
 
-#extract the data
+
 for (i in 1:length(tracks_links)) {
-Sys.sleep(10)
+Sys.sleep(5)
 links<-GET(tracks_links[i], user_agent(ua_success)) %>%
   content(type = "text/html") %>% 
       html_elements(".page a") %>% 
@@ -62,14 +59,34 @@ links<-GET(tracks_links[i], user_agent(ua_success)) %>%
                 html_text2(),
               year = html_element(.x, ".tdata__td3:nth-child(4)") %>% 
                 html_text2(),
-              genre = html_element(.x, ".tdata__badge") %>% 
+              part_sampled = html_element(.x, ".tdata__badge") %>% 
                 html_text2()
             )))  
       result<- bind_rows(result,extracted_data)
   }
 
 
+#use the value of column artist and title to get the genre of the song, but first we need to clean the data
+result_test<-result
+result_test <- result_test %>%
+  mutate_at(vars(1:2), ~gsub(" /", "", .)) %>%  
+  mutate_at(vars(1:2), ~gsub(" feat\\..*$", "", .))  %>%  
+  mutate_at(vars(1:2), ~gsub(" ", "-", .)) 
+ 
 
+genre <- tibble(
+  genre = character()
+)
 
+#extract the genre of the song
+for (i in 1:dim(result_test)[1]) {
+  type <- GET(paste0("https://www.whosampled.com/", result_test$artist[i], "/", result_test$title[i], "/"), user_agent("ua_success")) %>%
+    content(type = "text/html") %>% 
+    html_elements("a span") %>% 
+    html_text2()%>% .[2]   
+  genre <- bind_rows(genre, tibble(genre = type))
 
+} 
 
+#merge the two dataframes
+sampled_dataframe<-bind_cols(result_test, genre)
