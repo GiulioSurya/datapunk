@@ -28,7 +28,7 @@ The Daft Punk were a celebrated French musical duo formed by musicians Thomas Ba
 
 They, too, were influenced by modern music, especially the most active musical currents between the 1960s and 1990s. Many famous pieces were sampled to create some of the duo's most successful singles. The albums "Homework" and "Discovery" are the ones that most prominently featured the use of samples in their production.
 
-This donut chart, reminiscent of an LP (special thanks to Sampling Donut for the idea), represents the Daft Punk tracks that used samples during their production.
+This donut chart, reminiscent of a vinyl LP, represents the Daft Punk tracks that utilized samples during their production. Each segment represents a Daft Punk song, and each dot signifies a song sampled by Daft Punk.
 
 ![donutrecord](https://github.com/GiulioSurya/datapunk/assets/153427674/8f751c66-a35c-496d-bb45-2b1ffd456e2c)
 
